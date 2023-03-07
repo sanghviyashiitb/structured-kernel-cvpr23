@@ -24,12 +24,6 @@ from models.deep_weiner.deblur import DEBLUR
 global device 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
-np.random.seed(34)
-
-def post_process(x):
-	return x
-
 def nan(t):
 	return torch.isnan(t).any().item()
 
@@ -60,57 +54,6 @@ def get_initial_z(sigma0, theta, kernel_mlp):
 		kt = kernel_mlp(zt)	
 	return kt, zt
 
-
-def morph_kernel(k, dilate=True, win_size=3):
-	window = np.ones([win_size, win_size], dtype="uint8")/(win_size**2)
-	if dilate:
-		out = cv2.dilate(k, window, iterations=1)
-	else:
-		out = cv2.erode(k, window, iterations=1)
-	out = out/np.sum(np.ravel(out))
-	return out
-
-def change_kernel(k, y, yn, M, p4ip):
-	k1 = k
-	loss = reblur_loss(yn, y, k1, M, p4ip)
-	print('Initial Loss: ', loss )
-
-	for idx in range(4):
-		k1 = morph_kernel(k1)
-		loss = reblur_loss(yn, y, k1, M, p4ip)
-		print('After Dilation, iteration ',idx+1,', loss:', loss)
-
-
-def reblur_loss(yn, y, k, M, p4ip ):
-	H, W = np.shape(y)
-	H1, W1 = H//4, W//4
-	
-	L2_LOSS = nn.MSELoss()
-	y_pad = np.pad(y, ((H1,H1),(W1,W1)), mode='symmetric')
-	kt = img_to_tens(k).to(device)
-	yt = img_to_tens(y_pad).to(device)
-	ynt = img_to_tens(yn).to(device)
-	Mt = scalar_to_tens(M).to(device)
-
-	with torch.no_grad():
-		_, A = psf_to_otf(kt,  yt.size()); A = A.to(device)
-		x_rec_list = p4ip(yt, kt, Mt)
-		x_rec = x_rec_list[-1]
-		y_rec = conv_fft_batch(A, x_rec)
-		y_rec = y_rec[H1:H+H1, W1:W+W1]
-		loss = L2_LOSS(ynt, y_rec) 
-	return loss.item()
-
-		# Get current kernel estimate in FFT-Form
-# 		# Reconstruct the blurred image
-# 		# MSE with denoised-only image as target
-# 		loss = L2_LOSS(yn_t, y_rec) 
-
-
-
-# def grad_descent(z, del_z, curr_STEP_SIZE, loss_fn):
-
-
 """
 -----------------------------------------------------------------------------------------
 
@@ -121,32 +64,28 @@ Iterative Scheme for Blind Deconvolution starts here
 
 def iterative_scheme(y, M, networks, opts = {} ):
 	"""
-	Component networks: non-blind solver, denoiser, kernel-network, enhancement-module
-	(last network optional)
+	Component networks: non-blind solver, denoiser, kernel-network
 	"""
 	p4ip = networks['nb_solver']
 	denoiser = networks['denoiser']
 	kernel_mlp = networks['kernel_mlp']
-	enhancement = networks['enhancement'] if 'enhancement' in opts else None
-
+	
 	"""
 	Iterative scheme options
 	"""	
-	# 'circular' or 'symmetric' convolution assumption, choose latter for real experiments
+	# 'circular' or 'symmetric' convolution assumption, choose latter for real-blur
 	MODE = opts['MODE'] if 'MODE' in opts else 'symmetric' 
 	# Use kernel-estimation module for initialization
 	USE_KERNEL_EST = opts['USE_KERNEL_EST'] if 'USE_KERNEL_EST' in opts else False
 	# Optimization hyperparameters
 	TOL = opts['TOL'] if 'TOL' in opts else 1e-8
-	
 	RHO = opts['RHO'] if 'RHO' in opts else 1e-4
 	MAX_ITERS = opts['MAX_ITERS'] if 'MAX_ITERS' in opts else 150
 	STEP_SIZE = opts['STEP_SIZE'] if 'STEP_SIZE' in opts else 1e5
 	STEP_SIZE2 = opts['STEP_SIZE2'] if 'STEP_SIZE2' in opts else 2.0
-	# Display the kernel while running the scheme
-	SHOW_KERNEL = opts['SHOW_KERNEL'] if 'SHOW_KERNEL' in opts else False
 	# Print out value of cost function, step size and other relevant parameters during iterations
 	VERBOSE = opts['VERBOSE'] if 'VERBOSE' in opts else False
+	# Use gradient loss
 	USE_GRADIENT_LOSS = opts['USE_GRADIENT_LOSS'] if 'USE_GRADIENT_LOSS' in opts else False
 	SECOND_STAGE = opts['SECOND_STAGE'] if 'SECOND_STAGE' in opts else True
 	FIRST_STAGE = opts['FIRST_STAGE'] if 'FIRST_STAGE' in opts else True
@@ -303,26 +242,3 @@ def iterative_scheme(y, M, networks, opts = {} ):
 				print("Breaking due to nan")
 				break
 	return x_list, k_list
-
-
-def iterative_scheme_wrapper(y, ALPHA, nb_solver, denoiser, kernel_mlp, opts):
-	# First find a patch with large gradients
-	# Get the denoised but blurred image
-	G_y =  p4ip_denoiser(y, ALPHA, denoiser)	 
-	H, W = np.shape(y)
-	max_magnitude = -np.inf
-	for i1 in range(0,H-256,256):
-		for j1 in range(0, W-256,256):
-			y_patch = G_y[i1:i1+256, j1:j1+256]
-			Dx, Dy = D(y_patch)	
-			grad_magnitude = np.mean(Dx**2 + Dy**2)
-			if grad_magnitude > max_magnitude:
-				max_magnitude = grad_magnitude
-				curr_patch = y[i1:i1+256,j1:j1+256]
-
-	_, k_list = iterative_scheme(curr_patch, ALPHA, nb_solver, denoiser, kernel_mlp, opts)
-
-	k_out = k_list[-1]
-	x_out = p4ip_wrapper(y, k_out, ALPHA, nb_solver, 'symmetric')
-	return x_out, k_out
-
