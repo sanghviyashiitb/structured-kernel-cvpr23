@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import models.resnet_basicblock as B
+import models.resunet.resnet_basicblock as B
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Kernel_MLP(nn.Module):

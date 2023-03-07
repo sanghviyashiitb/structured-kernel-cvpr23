@@ -127,7 +127,6 @@ def get_control_points(max_control_points = 5, max_speed = 32):
 
 	return control_points
 
-
 def create_trajectory(control_points, N):
 	x = control_points[:,0]
 	y = control_points[:,1]	
@@ -185,16 +184,3 @@ class Kernels_As_ControlPoints(Dataset):
 		kernel = torch.from_numpy(kernel).view(1,self.k_size, self.k_size)
 		return [control_points_vec, kernel]
 
-
-# data_train = Kernels_As_ControlPoints()
-# train_loader = DataLoader(data_train, batch_size=1, shuffle=True, num_workers=0)
-
-# for i, data in enumerate(train_loader):
-# 		control_points_vec, kernel = data	
-# 		print(control_points_vec)
-# 		# plt.subplot(1,3,1)
-# 		kernel = np.squeeze(np.squeeze(kernel.numpy()))
-# 		plt.imshow( kernel, cmap='gray'); plt.axis('off'); plt.colorbar()
-# 		plt.show()
-# 		if i > 10:
-# 			break

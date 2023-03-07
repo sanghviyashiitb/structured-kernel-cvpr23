@@ -1,4 +1,4 @@
-import models.resnet_basicblock as B
+import models.resunet.resnet_basicblock as B
 import torch
 import torch.nn as nn
 import numpy as np

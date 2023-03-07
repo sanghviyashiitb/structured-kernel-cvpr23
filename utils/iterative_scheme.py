@@ -9,23 +9,19 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from utils.blind_deconv import Normalize_Kernel, shrinkage_torch, coarse_kernel_estimation
-from utils.blind_deconv import multiscale_kernel1, multiscale_kernel2
+from utils.utils_torch import Normalize_Kernel, shrinkage_torch
 from utils.utils_deblur import gauss_kernel, pad, crop, psf2otf, otf2psf, D, imresize, shock
 from utils.utils_torch import conv_fft_batch, psf_to_otf, p4ip_denoiser,net_wrapper, p4ip_wrapper
-from utils.utils_torch import tens_to_img, scalar_to_tens, img_to_tens
-from utils.dataloader import center_kernel
+from utils.utils_torch import tens_to_img, scalar_to_tens, img_to_tens, nan
+from utils.utils_deblur import center_kernel
 from utils.gauss_kernel_estimate import estimate_gaussian_kernel 
 
-from models.network_p4ip import P4IP_Net
-from models.ResUNet import ResUNet
-from models.deep_weiner.deblur import DEBLUR
 
 global device 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def nan(t):
-	return torch.isnan(t).any().item()
+np.random.seed(34)
+
 
 def L2_LOSS_GRADIENT(x, y):
 	_, _, H, W = x.size()
@@ -33,13 +29,6 @@ def L2_LOSS_GRADIENT(x, y):
 	Dx_y, Dy_y = torch.gradient(y.view(H,W), dim=[0,1])
 	L2_LOSS = nn.MSELoss()
 	return L2_LOSS(Dx_x, Dx_y) + L2_LOSS(Dy_x, Dy_y)
-
-def L1_LOSS_GRADIENT(x, y):
-	_, _, H, W = x.size()
-	Dx_x, Dy_x = torch.gradient(x.view(H,W), dim=[0,1])
-	Dx_y, Dy_y = torch.gradient(y.view(H,W), dim=[0,1])
-	L1_LOSS = nn.L1Loss()
-	return L1_LOSS(Dx_x, Dx_y) + L1_LOSS(Dy_x, Dy_y)
 
 def get_initial_z(sigma0, theta, kernel_mlp):
 	N = kernel_mlp.n_control_points()
@@ -91,10 +80,10 @@ def iterative_scheme(y, M, networks, opts = {} ):
 	FIRST_STAGE = opts['FIRST_STAGE'] if 'FIRST_STAGE' in opts else True
 
 	if USE_GRADIENT_LOSS:
-		# L2_LOSS = L1_LOSS_GRADIENT
 		L2_LOSS = L2_LOSS_GRADIENT 
 	else:
 		L2_LOSS = nn.MSELoss()
+	
 	K_N = 64
 	# Symmetric mode requires the image to be padded and then the relevant output be cropped out
 	# after deconvolution

@@ -178,6 +178,22 @@ def img_to_tens(x, size=None):
 	else:
 		return xt.view(size)
 
+def nan(t):
+	return torch.isnan(t).any().item()
+
+class Normalize_Kernel(nn.Module):
+	def __init__(self):
+		super(Normalize_Kernel, self).__init__()
+		self.relu = nn.ReLU()
+	def forward(self, k):
+		k = self.relu(k) 
+		k_sum = torch.sum(k)
+		k = k/k_sum
+		return k
+
+def shrinkage_torch(x, rho):
+	return F.relu(x-rho) - F.relu(-x-rho)
+
 
 # def Kernel_L1_Loss(k_out, k_target):
 # 	# Make sure the k_target is of size k_out

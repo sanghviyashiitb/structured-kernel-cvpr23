@@ -7,7 +7,8 @@ import math
 import numpy as np
 from numpy.fft import fft2, ifft2, ifftshift
 
-from models.ResUNet import ResUNet
+from models.resunet.ResUNet import ResUNet
+
 from utils.utils_deblur import pad
 from utils.utils_torch import conv_fft, conv_fft_batch, psf_to_otf
 

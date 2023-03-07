@@ -5,6 +5,22 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import cv2 as cv
 
+def add_inset(im, kernel):
+	if np.ndim(im) == 2:
+		H, W = np.shape(im)
+		H1, W1 = np.int32(H*0.2), np.int32(W*0.2)
+		kernel = kernel/np.max(np.ravel(kernel))
+		k1 = np.asarray(Image.fromarray(kernel).resize((W1,H1)), dtype=np.float32)
+		im[H-H1:H, 0:W1] = k1
+	if np.ndim(im) == 3:
+		H, W, _  = np.shape(im)
+		H1, W1 = np.int32(H*0.2), np.int32(W*0.2)
+		kernel = kernel*255/np.max(np.ravel(kernel))
+		k1 = np.asarray(Image.fromarray(kernel).resize((W1,H1)), dtype=np.float32)
+		for idx in range(3):
+			im[H-H1:H, 0:W1, idx] = k1
+	return im
+
 
 def img_register(im_true, im_est):
 	img1_color = im_true # Image to be aligned
