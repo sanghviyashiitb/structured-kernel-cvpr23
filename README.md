@@ -1,7 +1,7 @@
 # Official Code for Structured Kernel Estimation for Photon-Limited Deconvolution  (CVPR 2023)
-
+<p align="center">
 <img src="https://user-images.githubusercontent.com/20774419/226128164-0a98b51b-cfbc-42a9-b32d-8db3ccdedf5c.png" width="800"> 
-
+</p>
 
 ## Instructions
 1. Create a local copy of repository using the following commands
@@ -17,13 +17,16 @@
       ```console
       foor@bar:~/structured-kernel-cvpr23$ python3 demo_grayscale.py  
       ```
+      <p align="center">
       <img src="results/demo_grayscale_output.png" width="800">
+      </p>
 4. To test the network on real-sensor data, run the file 
       ```console
       foor@bar:~/structured-kernel-cvpr23$ python3 demo_real.py  
       ```
-      <img src="results/demo_real_output.png" width="800">
-      
+      <p align="center">
+      <img src="results/demo_real_output.png" width="600">
+      </p>
  ### Citation
  
  ```
@@ -35,4 +38,4 @@
 }
  ```
 
-Feel free to ask your questions/share your feedback using the "Issues" feature at the the top of this page. 
+Feel free to ask your questions/share your feedback using the ]Issues](https://github.com/sanghviyashiitb/structured-kernel-cvpr23/issues) feature at the the top of this page. 
