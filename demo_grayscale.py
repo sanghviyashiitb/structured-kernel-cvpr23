@@ -71,4 +71,5 @@ if __name__ == "__main__":
 	
 	plt.subplot(1,3,3); plt.imshow(add_inset(x, pad(k_true, [64,64])), cmap='gray');
 	plt.axis('off'); plt.title('Clean Image \n(True Kernel in Inset)')
+	plt.savefig('results/demo_grayscale_output.png', bbox_inches='tight')
 	plt.show()

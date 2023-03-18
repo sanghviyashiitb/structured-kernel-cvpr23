@@ -94,7 +94,6 @@ if __name__ == "__main__":
 	y_rgb = rggb_to_rgb(y_out_list, [1,1,1])
 	x_rgb = rggb_to_rgb(x_out_list, [1,1,1])
 	
-	plt.figure(figsize=(12,6))
 	plt.subplot(1,2,1)
 	plt.imshow(y_rgb); plt.axis('off')
 	plt.title('Noisy-Blur Image')
@@ -102,4 +101,6 @@ if __name__ == "__main__":
 	plt.subplot(1,2,2)
 	plt.imshow(x_rgb); plt.axis('off')
 	plt.title('Reconstructed Image')
+	plt.savefig('results/demo_real_output.png', bbox_inches='tight')
+
 	plt.show()
