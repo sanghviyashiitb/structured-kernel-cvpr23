@@ -28,7 +28,7 @@
       <img src="results/demo_real_output.png" width="600">
       </p>
       
-  For further details on this dataset containing real-sensor noise and bmotion blur along with ground-truthd data i.e., _Photon Limited Deblurring Dataset (PLDD)_ refer to this [link](https://aaaakshat.github.io/pldd/)   
+  For further details on this dataset containing real-sensor noise + motion blur along with ground-truth kernels i.e., _Photon Limited Deblurring Dataset (PLDD)_ refer to this [link](https://aaaakshat.github.io/pldd/)   
  ### Citation
  
  ```
