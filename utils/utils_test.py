@@ -80,3 +80,35 @@ def change_whitebalance(img_src, img_target):
     for idx in range(3):
         img_src[:,:,idx] = img_src[:,:,idx].astype(np.float32)*mean_target[idx]/mean_src[idx]
     return img_src, img_target
+
+
+
+def bayer_to_rggb(x_bayer):
+	H, W = np.shape(x_bayer)
+	x_rggb = []	
+
+	x_rggb.append(x_bayer[0::2,0::2])
+	x_rggb.append(x_bayer[0::2,1::2])
+	x_rggb.append(x_bayer[1::2,0::2])
+	x_rggb.append(x_bayer[1::2,1::2])
+	
+	return x_rggb
+
+
+
+def rggb_to_rgb(x_list, switch = False, coeff=[1,1,1]):
+	H, W = np.shape(x_list[0])
+	x_rgb = np.zeros([H, W, 3])
+	
+	x_rgb[:,:,0] = x_list[0]
+	x_rgb[:,:,1] = (x_list[1]+x_list[2])*0.5
+	x_rgb[:,:,2] = x_list[3]
+
+	if switch:
+		x_rgb = np.flip(x_rgb,2)
+
+	x_rgb[:,:,0] *= coeff[0]
+	x_rgb[:,:,1] *= coeff[1]
+	x_rgb[:,:,2] *= coeff[2]
+
+	return x_rgb
