@@ -38,4 +38,4 @@
 }
  ```
 
-Feel free to ask your questions/share your feedback using the ]Issues](https://github.com/sanghviyashiitb/structured-kernel-cvpr23/issues) feature at the the top of this page. 
+Feel free to ask your questions/share your feedback using the [Issues](https://github.com/sanghviyashiitb/structured-kernel-cvpr23/issues) feature at the the top of this page. 
