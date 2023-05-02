@@ -62,8 +62,6 @@ def iterative_scheme(y, M, networks, opts = {} ):
 	"""
 	Iterative scheme options
 	"""	
-	# 'circular' or 'symmetric' convolution assumption, choose latter for real-blur
-	MODE = opts['MODE'] if 'MODE' in opts else 'symmetric' 
 	# Use kernel-estimation module for initialization
 	USE_KERNEL_EST = opts['USE_KERNEL_EST'] if 'USE_KERNEL_EST' in opts else False
 	# Optimization hyperparameters
@@ -89,8 +87,7 @@ def iterative_scheme(y, M, networks, opts = {} ):
 	# after deconvolution
 	H, W = np.shape(y)
 	H1, W1 = H//4, W//4
-	if MODE == 'symmetric':
-		y_pad = np.pad(y, ((H1,H1),(W1,W1)), mode='symmetric')
+	y_pad = np.pad(y, ((H1,H1),(W1,W1)), mode='symmetric')
 	# Get the denoised but blurred image
 	yn =  p4ip_denoiser(y, M, denoiser)	
 	yn_pad =  p4ip_denoiser(y_pad, M, denoiser)
@@ -145,8 +142,7 @@ def iterative_scheme(y, M, networks, opts = {} ):
 					print('iterations: %d, loss fn: %0.6f, current step size: %0.3f'%(iterations,loss.item()*1e3, STEP_SIZE))
 				# Book-keeping: Tracking loss, current kernel estimate and image
 				k_np, x_np = tens_to_img(k, [K_N,K_N]), tens_to_img(x_rec)
-				if MODE == 'symmetric':
-					x_np = x_np[H1:H1+H, W1:W1+W]
+				x_np = x_np[H1:H1+H, W1:W1+W]
 				k_list.append(k_np); x_list.append(np.clip(x_np,0,1)) 
 				iterations += 1
 				# Reduce step size if the cost function is not decreasing 
