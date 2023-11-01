@@ -32,11 +32,13 @@
  ### Citation
  
  ```
-@article{sanghvi2023structured,
-  title={Structured Kernel Estimation for Photon-Limited Deconvolution},
-  author={Sanghvi, Yash and Mao, Zhiyuan and Chan, Stanley H},
-  journal={arXiv preprint arXiv:2303.03472},
-  year={2023}
+@InProceedings{Sanghvi_2023_CVPR,
+    author    = {Sanghvi, Yash and Mao, Zhiyuan and Chan, Stanley H.},
+    title     = {Structured Kernel Estimation for Photon-Limited Deconvolution},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month     = {June},
+    year      = {2023},
+    pages     = {9863-9872}
 }
  ```
 
